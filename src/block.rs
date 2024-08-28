@@ -1,6 +1,7 @@
 use std::fmt::{Display, Formatter};
 use std::str::Lines;
 use std::error::Error;
+use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct Block{
@@ -40,18 +41,13 @@ impl Block{
             content : BlockType::TextBlock(content)
         }
     }
+    
     pub fn new_array_block(name : String, content : Vec<Block>) -> Block{
         Block{
             name,
             content : BlockType::ArrayBlock(content)
         }
     }
-    pub fn parse(input : &str) -> Result<Block, BlockParsingError>{
-        let mut lines = input.lines();
-
-        Block::parse_from_iter(&mut lines)
-    }
-    
     fn parse_from_iter(mut line_iter : &mut Lines) -> Result<Block, BlockParsingError>{
         let header_line = line_iter.next().ok_or(BlockParsingError::EOF)?;
         
@@ -125,6 +121,15 @@ impl Display for Block{
     }
 }
 
+impl FromStr for Block{
+    type Err = BlockParsingError;
+    
+    fn from_str(s : &str) -> Result<Self, Self::Err>{
+        let mut line_iter = s.lines();
+        Block::parse_from_iter(&mut line_iter)
+    }
+}
+
 #[cfg(test)]
 mod tests{
     use super::*;
@@ -133,7 +138,7 @@ mod tests{
     fn test_parsing_block(){
         let input = "HEADER TEXT 2\nHello\nWorld\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         if let BlockType::TextBlock(ref lines) = block.content{
             assert_eq!(lines.len(), 2);
@@ -149,7 +154,7 @@ mod tests{
     fn test_parsing_nested_block(){
         let input = "HEADER ARRAY 2\nHEADER TEXT 2\nHello\nWorld\nHEADER TEXT 1\nRust\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         if let BlockType::ArrayBlock(ref blocks) = block.content{
             assert_eq!(blocks.len(), 2);
@@ -181,7 +186,7 @@ mod tests{
     fn test_parsing_invalid_header(){
         let input = "HEADER INVALID 2\nHello\nWorld\n";
         
-        let block = Block::parse(input);
+        let block = input.parse::<Block>();
         
         assert!(block.is_err());
     }
@@ -190,7 +195,7 @@ mod tests{
     fn test_parsing_eof(){
         let input = "HEADER TEXT 2\nHello\n";
         
-        let block = Block::parse(input);
+        let block = input.parse::<Block>();
         
         assert!(block.is_err());
     }
@@ -199,7 +204,7 @@ mod tests{
     fn test_display_block(){
         let input = "HEADER TEXT 2\nHello\nWorld\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         let output = format!("{}", block);
         
@@ -210,7 +215,7 @@ mod tests{
     fn test_display_nested_block(){
         let input = "HEADER ARRAY 2\nHEADER TEXT 2\nHello\nWorld\nHEADER TEXT 1\nRust\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         let output = format!("{}", block);
         
@@ -221,7 +226,7 @@ mod tests{
     fn test_display_empty_text_block(){
         let input = "HEADER TEXT 0\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         let output = format!("{}", block);
         
@@ -232,7 +237,7 @@ mod tests{
     fn test_display_empty_array_block(){
         let input = "HEADER ARRAY 0\n";
         
-        let block = Block::parse(input).unwrap();
+        let block = input.parse::<Block>().unwrap();
         
         let output = format!("{}", block);
         
