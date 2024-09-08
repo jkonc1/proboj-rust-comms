@@ -2,17 +2,67 @@ use super::runner;
 type PlayerName = String;
 
 pub fn read_config() -> (Vec<PlayerName>, Vec<String>) {
-    let (status, data) = runner::read_runner();
+    _read_config(std::io::stdin().lock())
+}
+
+fn _read_config<R>(input: R) -> (Vec<PlayerName>, Vec<String>)
+where
+    R: std::io::BufRead,
+{
+    let (status, data) = runner::_read_runner(input);
+    let mut data = data.iter();
     if status != "CONFIG" {
-        panic!("Unexpected status: {status}");
+        panic!("Unexpected header when reading config: {status}");
     }
 
-    let players: Vec<PlayerName> = data[0].split_whitespace().map(|s| s.to_string()).collect();
-    let mut cfg: Vec<String> = vec![];
+    let players: Vec<PlayerName> = match data.next() {
+        Some(s) => s.split_whitespace().map(|s| s.to_string()).collect(),
+        None => panic!("No players specified in config"),
+    };
 
-    for i in data[1..].iter() {
-        cfg.push(i.to_string());
+    if players.len() == 0 {
+        panic!("No players specified in config");
     }
+
+    let cfg: Vec<_> = data.map(|s| s.to_string()).collect();
 
     (players, cfg)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_read_config() {
+        let input = "CONFIG\na b c\n1 0 1\n2\n3\n.\n";
+        let mut reader = std::io::BufReader::new(input.as_bytes());
+        let (players, cfg) = _read_config(&mut reader);
+        assert_eq!(players, vec!["a", "b", "c"]);
+        assert_eq!(cfg, vec!["1 0 1", "2", "3"]);
+    }
+
+    #[test]
+    #[should_panic(expected = "No players specified in config")]
+    fn test_read_config_no_players() {
+        let input = "CONFIG\n\na\nb\nc\n.\n";
+        let mut reader = std::io::BufReader::new(input.as_bytes());
+        _read_config(&mut reader);
+    }
+
+    #[test]
+    #[should_panic(expected = "No players specified in config")]
+    fn test_read_config_no_players2() {
+        let input = "CONFIG\n\n.\n";
+        let mut reader = std::io::BufReader::new(input.as_bytes());
+        _read_config(&mut reader);
+    }
+
+    #[test]
+    #[should_panic(expected = "Unexpected header when reading config:")]
+    fn test_read_config_wrong_header() {
+        let input = "WRONG\na b c\n1\n2\n3\n.\n";
+        let mut reader = std::io::BufReader::new(input.as_bytes());
+        _read_config(&mut reader);
+    }
 }

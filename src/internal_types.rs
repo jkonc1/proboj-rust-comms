@@ -34,18 +34,13 @@ impl<'a> fmt::Display for Args<'a> {
     }
 }
 
-pub enum Status {
-    Ok,
-    Err,
-    Died,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl Status {
-    pub fn from_string(s: &String) -> Status {
-        match s.as_str() {
-            "OK" => Status::Ok,
-            "DIED" => Status::Died,
-            _ => Status::Err,
-        }
+    #[test]
+    fn test_display_args() {
+        let args = Args::new(vec!["a", "b", "c"]);
+        assert_eq!(args.to_string(), "a b c");
     }
 }

@@ -21,7 +21,24 @@ Internal
 - read_runner() -> (Status, Block)
 */
 
-pub mod types; // TODO: Odtialto by mal byt public asi len Status
+pub mod types {
+    pub enum Status {
+        Ok,
+        Err,
+        Died,
+    }
+
+    impl Status {
+        pub fn from_string(s: &String) -> Status {
+            match s.as_str() {
+                "OK" => Status::Ok,
+                "DIED" => Status::Died,
+                _ => Status::Err,
+            }
+        }
+    }
+}
+mod internal_types;
 
 pub mod comms {
     pub mod init;
@@ -65,7 +82,7 @@ mod tests {
 
     #[test]
     fn test_types() {
-        let args = types::Args::new(vec!["a", "b", "c"]);
+        let args = internal_types::Args::new(vec!["a", "b", "c"]);
         assert_eq!(args.to_string(), "a b c");
     }
 }

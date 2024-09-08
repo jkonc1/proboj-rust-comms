@@ -1,6 +1,7 @@
 use super::runner;
 use crate::block::Block;
-use crate::types::{Args, PlayerInfo, Status};
+use crate::internal_types::{Args, PlayerInfo};
+use crate::types::Status;
 
 pub fn read_player(target: PlayerInfo) -> (Status, Block) {
     runner::send_command("READ PLAYER", Args::new_name(target), "");
@@ -35,5 +36,5 @@ pub fn continue_player(target: PlayerInfo) {
 }
 
 pub fn kill_player(target: PlayerInfo) {
-    runner::send_command("KIL PLAYER", Args::new_name(target), "")
+    runner::send_command("KILL PLAYER", Args::new_name(target), "")
 }
