@@ -1,44 +1,14 @@
-/*
-Comms api:
-Player
-- read_player(PlayerInfo) -> (Status, Block)
-- to_player(PlayerInfo, Block)
-- send_and_read(PlayerInfo, Block) -> (Status, Block)
-- log_player(PlayerInfo, &str)
-- pause_player(PlayerInfo)
-- continue_player(PlayerInfo)
-- kill_player(PlayerInfo)
+/*!
+# proboj-rust-comms
 
-Observer
-- to_observer(Block)
-- send_scores(map<PlayerInfo, i32>)
-
-Init
-- init() -> (Vec<PlayerInfo>, Args)
-
-Internal
-- send_command(PlayerInfo, command : &str, args : Args, payload : Block)
-- read_runner() -> (Status, Block)
+A crate for handling communication with [ksp-proboj-runner]().
 */
 
-pub mod types {
-    pub enum Status {
-        Ok,
-        Err,
-        Died,
-    }
+pub use crate::comms::{init, observer, player};
+pub use crate::types::Status;
 
-    impl Status {
-        pub fn from_string(s: &String) -> Status {
-            match s.as_str() {
-                "OK" => Status::Ok,
-                "DIED" => Status::Died,
-                _ => Status::Err,
-            }
-        }
-    }
-}
 mod internal_types;
+pub mod types;
 
 pub mod comms {
     pub mod init;
@@ -48,17 +18,27 @@ pub mod comms {
 }
 
 pub mod block {
+    use std::str::FromStr;
+
     pub struct Block {
         data: Vec<String>,
     }
 
     impl Block {
         // TODO: Placeholder implementation
-        pub fn new(data: Vec<String>) -> Self {
-            Self { data }
-        }
-        pub fn new_empty() -> Self {
+        pub fn new() -> Self {
             Self { data: vec![] }
+        }
+    }
+
+    pub struct ParseError;
+
+    impl FromStr for Block {
+        type Err = ParseError;
+
+        fn from_str(s: &str) -> Result<Self, Self::Err> {
+            let data: Vec<_> = s.split("/n").map(|s| s.to_string()).collect();
+            Ok(Block { data })
         }
     }
 
@@ -73,16 +53,5 @@ pub mod block {
             }
             write!(f, "{res}")
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_types() {
-        let args = internal_types::Args::new(vec!["a", "b", "c"]);
-        assert_eq!(args.to_string(), "a b c");
     }
 }

@@ -7,14 +7,14 @@ pub struct Args<'a> {
 }
 
 impl Args<'_> {
-    pub fn new<'a>(data: Vec<&'a str>) -> Args<'a> {
+    pub fn new<'a>() -> Args<'a> {
+        Args { data: vec![] }
+    }
+    pub fn from_vec<'a>(data: Vec<&'a str>) -> Args<'a> {
         Args { data }
     }
-    pub fn new_name<'a>(name: PlayerInfo<'a>) -> Args<'a> {
-        Args { data: vec![name] }
-    }
-    pub fn new_empty<'a>() -> Args<'a> {
-        Args { data: vec![] }
+    pub fn from_str<'a>(data: &'a str) -> Args<'a> {
+        Args { data: vec![data] }
     }
     pub fn is_empty(&self) -> bool {
         self.data.len() == 0
@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn test_display_args() {
-        let args = Args::new(vec!["a", "b", "c"]);
+        let args = Args::from_vec(vec!["a", "b", "c"]);
         assert_eq!(args.to_string(), "a b c");
     }
 }

@@ -1,6 +1,15 @@
 use super::runner;
 type PlayerName = String;
 
+/**
+Read config from runner.
+
+Returns list of players and vector of additional config values split by whitespace characters.
+
+# Panics
+
+The `read_config` function will panic if it receives a wrong header from runner or if number of players send by runner is zero.
+*/
 pub fn read_config() -> (Vec<PlayerName>, Vec<String>) {
     _read_config(std::io::stdin().lock())
 }
