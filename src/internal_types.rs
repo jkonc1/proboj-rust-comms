@@ -1,7 +1,5 @@
 use std::fmt;
 
-pub type PlayerInfo<'a> = &'a str;
-
 pub struct Args<'a> {
     data: Vec<&'a str>,
 }
@@ -10,6 +8,7 @@ impl Args<'_> {
     pub fn new<'a>() -> Args<'a> {
         Args { data: vec![] }
     }
+    #[allow(dead_code)]
     pub fn from_vec<'a>(data: Vec<&'a str>) -> Args<'a> {
         Args { data }
     }

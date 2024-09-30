@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Status {
     Ok,
     Error,
@@ -15,5 +16,21 @@ impl FromStr for Status {
             "ERROR" => Ok(Status::Error),
             _ => Err(()),
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct PlayerInfo {
+    name: String,
+}
+
+impl PlayerInfo {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+        }
+    }
+    pub fn name(&self) -> &str {
+        &self.name
     }
 }
