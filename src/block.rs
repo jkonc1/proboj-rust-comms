@@ -4,6 +4,22 @@ use std::str::FromStr;
 use std::str::Lines;
 use scan_fmt::scan_fmt;
 
+pub trait BlockEquivalent{
+    type Err;
+    fn to_block(&self) -> Block;
+    fn from_block(_ : &Block) -> Result<Block, Self::Err>;
+}
+
+impl BlockEquivalent for Block{
+    type Err = ();
+    fn to_block(&self) -> Block {
+        self.clone()
+    }
+    fn from_block(block: &Block) -> Result<Block, Self::Err> {
+        Ok(block.clone())
+    }
+}
+
 #[derive(Clone)]
 pub struct Block {
     pub name: String,
