@@ -1,11 +1,12 @@
 use super::runner;
-use crate::block::Block;
+use crate::block::BlockEquivalent;
 use crate::internal_types::Args;
 use crate::types::Status;
 
 /**
-Send `Block` to observer.
+Send `BlockEquivalent` to observer.
 */
-pub fn to_observer(block: &Block) -> Status {
+pub fn to_observer(data: &impl BlockEquivalent) -> Status {
+    let block = data.to_block();
     runner::send_command("TO OBSERVER", Args::new(), &block.to_string())
 }
