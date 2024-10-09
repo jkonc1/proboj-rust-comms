@@ -2,6 +2,7 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::str::Lines;
+use scan_fmt::scan_fmt;
 
 #[derive(Clone)]
 pub struct Block {
@@ -56,14 +57,14 @@ impl Block {
         let scan = scan_fmt!(header_line, "{} {} {d}", String, String, u32);
 
         if scan.is_err() {
-            return Err(BlockParsingError::InvalidHeader(header_line));
+            return Err(BlockParsingError::InvalidHeader(header_line.to_string()));
         }
         let (name, block_type, length) = scan.unwrap();
 
         match block_type.as_str() {
             "TEXT" => Self::parse_text_block(&mut line_iter, name, length),
             "ARRAY" => Self::parse_array_block(&mut line_iter, name, length),
-            _ => return Err(BlockParsingError::InvalidHeader(header_line)),
+            _ => return Err(BlockParsingError::InvalidHeader(header_line.to_string())),
         }
     }
 
