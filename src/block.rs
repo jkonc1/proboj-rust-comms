@@ -19,14 +19,14 @@ pub enum BlockType {
 
 #[derive(Debug)]
 pub enum BlockParsingError {
-    InvalidHeader,
+    InvalidHeader(String),
     EOF,
 }
 
 impl Display for BlockParsingError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            BlockParsingError::InvalidHeader => write!(f, "Invalid header"),
+            BlockParsingError::InvalidHeader(s) => write!(f, "Invalid header: {s}"),
             BlockParsingError::EOF => write!(f, "Unexpected EOF"),
         }
     }
@@ -56,14 +56,14 @@ impl Block {
         let scan = scan_fmt!(header_line, "{} {} {d}", String, String, u32);
 
         if scan.is_err() {
-            return Err(BlockParsingError::InvalidHeader);
+            return Err(BlockParsingError::InvalidHeader(header_line));
         }
         let (name, block_type, length) = scan.unwrap();
 
         match block_type.as_str() {
             "TEXT" => Self::parse_text_block(&mut line_iter, name, length),
             "ARRAY" => Self::parse_array_block(&mut line_iter, name, length),
-            _ => return Err(BlockParsingError::InvalidHeader),
+            _ => return Err(BlockParsingError::InvalidHeader(header_line)),
         }
     }
 
@@ -83,10 +83,7 @@ impl Block {
                 return Err(BlockParsingError::EOF);
             }
         }
-        Ok(Block {
-            name,
-            content: BlockType::TextBlock(content),
-        })
+        Ok(Block::new_text_block(name, content))
     }
 
     fn parse_array_block(
@@ -100,10 +97,7 @@ impl Block {
             let block = Block::parse_from_iter(line_iter)?;
             content.push(block);
         }
-        Ok(Block {
-            name,
-            content: BlockType::ArrayBlock(content),
-        })
+        Ok(Block::new_array_block(name, content))
     }
 }
 
