@@ -42,16 +42,23 @@ impl Display for BlockParsingError {
 impl Error for BlockParsingError {}
 
 impl Block {
-    pub fn new_text_block(name: String, content: Vec<Line>) -> Block {
+    pub fn new_text_block(name: &str, content: Vec<Line>) -> Block {
         Block {
-            name,
+            name: name.to_string(),
             content: BlockType::TextBlock(content),
         }
     }
 
-    pub fn new_array_block(name: String, content: Vec<Block>) -> Block {
+    pub fn new_single_line_block(name: &str, content: Line) -> Block {
         Block {
-            name,
+            name: name.to_string(),
+            content: BlockType::TextBlock(vec![content]),
+        }
+    }
+
+    pub fn new_array_block(name: &str, content: Vec<Block>) -> Block {
+        Block {
+            name: name.to_string(),
             content: BlockType::ArrayBlock(content),
         }
     }
@@ -90,7 +97,7 @@ impl Block {
                 return Err(BlockParsingError::EOF);
             }
         }
-        Ok(Block::new_text_block(name, content))
+        Ok(Block::new_text_block(&name, content))
     }
 
     fn parse_array_block(
@@ -104,7 +111,7 @@ impl Block {
             let block = Block::parse_from_iter(line_iter)?;
             content.push(block);
         }
-        Ok(Block::new_array_block(name, content))
+        Ok(Block::new_array_block(&name, content))
     }
 }
 
