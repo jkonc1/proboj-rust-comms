@@ -7,9 +7,9 @@ A crate for handling communication with [ksp-proboj-runner](https://github.com/t
 pub use crate::comms::{init, observer, player};
 pub use crate::types::Status;
 
+pub mod block;
 mod internal_types;
 pub mod types;
-pub mod block;
 
 pub mod comms {
     pub mod init;
@@ -17,4 +17,3 @@ pub mod comms {
     pub mod player;
     mod runner;
 }
-

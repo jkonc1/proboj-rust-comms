@@ -1,5 +1,5 @@
 use super::runner;
-use crate::block::{Block, BlockEquivalent};
+use crate::block::Block;
 use crate::internal_types::Args;
 use crate::types::{PlayerInfo, Status};
 use std::str::FromStr;
@@ -18,8 +18,11 @@ pub fn read_player(target: &PlayerInfo) -> (Status, Option<Block>) {
     }
 }
 
-pub fn to_player(target: &PlayerInfo, data: &impl BlockEquivalent) -> Status {
-    let block = data.to_block();
+pub fn to_player<T>(target: &PlayerInfo, data: T) -> Status
+where
+    T: Into<Block>,
+{
+    let block: Block = data.into();
     runner::send_command(
         "TO PLAYER",
         Args::from_str(target.name()),
@@ -27,7 +30,10 @@ pub fn to_player(target: &PlayerInfo, data: &impl BlockEquivalent) -> Status {
     )
 }
 
-pub fn send_and_read_player(target: &PlayerInfo, data: &impl BlockEquivalent) -> (Status, Option<Block>) {
+pub fn send_and_read_player<T>(target: &PlayerInfo, data: T) -> (Status, Option<Block>)
+where
+    T: Into<Block>,
+{
     if to_player(target, data) != Status::Ok {
         (Status::Error, None)
     } else {
