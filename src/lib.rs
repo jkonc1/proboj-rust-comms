@@ -5,7 +5,8 @@ A crate for handling communication with [ksp-proboj-runner](https://github.com/t
 */
 
 pub use crate::comms::{init, observer, player};
-pub use crate::types::Status;
+pub use crate::types::{PlayerInfo, Status};
+pub use block::{Block, BlockType};
 
 pub mod block;
 mod internal_types;
