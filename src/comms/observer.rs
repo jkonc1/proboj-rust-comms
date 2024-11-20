@@ -11,5 +11,6 @@ where
     T: Into<Block>,
 {
     let block: Block = data.into();
-    runner::send_command("TO OBSERVER", Args::new(), &block.to_string())
+    let (status, _) = runner::send_command("TO OBSERVER", Args::new(), &block.to_string());
+    status
 }

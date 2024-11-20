@@ -5,10 +5,10 @@ pub type RawStatus = String;
 
 const COMMUNICATION_END_LINE: &str = ".";
 
-pub fn send_command(command: &str, args: Args, payload: &str) -> Status {
+pub fn send_command(command: &str, args: Args, payload: &str) -> (Status, Vec<String>) {
     send_command_stream(std::io::stdout().lock(), command, args, payload);
-    let (status, _) = read_runner();
-    Status::from_str(&status).unwrap_or(Status::Error)
+    let (status, payload) = read_runner();
+    (Status::from_str(&status).unwrap_or(Status::Error), payload)
 }
 
 fn send_command_stream<W>(mut output: W, command: &str, args: Args, payload: &str)
@@ -20,7 +20,7 @@ where
     } else {
         writeln!(output, "{command} {args}").unwrap();
     }
-    write!(output, "{payload}").unwrap();
+    writeln!(output, "{payload}").unwrap();
     writeln!(output, "{COMMUNICATION_END_LINE}").unwrap();
     output.flush().unwrap();
 }
@@ -82,7 +82,7 @@ mod tests {
             &mut output,
             "COMMAND",
             Args::from_vec(vec!["a", "b"]),
-            "payload\n",
+            "payload",
         );
         let output = String::from_utf8(output).unwrap();
         assert_eq!(output, "COMMAND a b\npayload\n.\n");
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn test_send_command_empty_args() {
         let mut output = vec![];
-        send_command_stream(&mut output, "COMMAND", Args::new(), "payload\n");
+        send_command_stream(&mut output, "COMMAND", Args::new(), "payload");
         let output = String::from_utf8(output).unwrap();
         assert_eq!(output, "COMMAND\npayload\n.\n");
     }

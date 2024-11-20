@@ -5,9 +5,7 @@ use crate::types::{PlayerInfo, Status};
 use std::str::FromStr;
 
 pub fn read_player(target: &PlayerInfo) -> (Status, Option<Block>) {
-    runner::send_command("READ PLAYER", Args::from_str(target.name()), "");
-    let (status, data) = runner::read_runner();
-    let status = Status::from_str(&status).unwrap_or(Status::Error);
+    let (status, data) = runner::send_command("READ PLAYER", Args::from_str(target.name()), "");
     let data = data.concat();
     match status {
         Status::Ok => match Block::from_str(data.as_str()) {
@@ -23,11 +21,12 @@ where
     T: Into<Block>,
 {
     let block: Block = data.into();
-    runner::send_command(
+    let (status, _) = runner::send_command(
         "TO PLAYER",
         Args::from_str(target.name()),
         &block.to_string(),
-    )
+    );
+    status
 }
 
 pub fn send_and_read_player<T>(target: &PlayerInfo, data: T) -> (Status, Option<Block>)
@@ -43,17 +42,21 @@ where
 
 pub fn log_player(target: &PlayerInfo, message: &str) -> Status {
     todo!(); // Zosikanovat gardenera nech prida tuto feature
-    runner::send_command("LOG PLAYER", Args::from_str(target.name()), message)
+    let (status, _) = runner::send_command("LOG PLAYER", Args::from_str(target.name()), message);
+    status
 }
 
 pub fn pause_player(target: &PlayerInfo) -> Status {
-    runner::send_command("PAUSE PLAYER", Args::from_str(target.name()), "")
+    let (status, _) = runner::send_command("PAUSE PLAYER", Args::from_str(target.name()), "");
+    status
 }
 
 pub fn continue_player(target: &PlayerInfo) -> Status {
-    runner::send_command("RESUME PLAYER", Args::from_str(target.name()), "")
+    let (status, _) = runner::send_command("RESUME PLAYER", Args::from_str(target.name()), "");
+    status
 }
 
 pub fn kill_player(target: &PlayerInfo) -> Status {
-    runner::send_command("KILL PLAYER", Args::from_str(target.name()), "")
+    let (status, _) = runner::send_command("KILL PLAYER", Args::from_str(target.name()), "");
+    status
 }
