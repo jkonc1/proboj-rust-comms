@@ -20,7 +20,7 @@ where
     } else {
         writeln!(output, "{command} {args}").unwrap();
     }
-    writeln!(output, "{payload}").unwrap();
+    write!(output, "{payload}").unwrap();
     writeln!(output, "{COMMUNICATION_END_LINE}").unwrap();
     output.flush().unwrap();
 }
@@ -82,7 +82,7 @@ mod tests {
             &mut output,
             "COMMAND",
             Args::from_vec(vec!["a", "b"]),
-            "payload",
+            "payload\n",
         );
         let output = String::from_utf8(output).unwrap();
         assert_eq!(output, "COMMAND a b\npayload\n.\n");
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn test_send_command_empty_args() {
         let mut output = vec![];
-        send_command_stream(&mut output, "COMMAND", Args::new(), "payload");
+        send_command_stream(&mut output, "COMMAND", Args::new(), "payload\n");
         let output = String::from_utf8(output).unwrap();
         assert_eq!(output, "COMMAND\npayload\n.\n");
     }
