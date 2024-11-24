@@ -6,7 +6,7 @@ use std::str::FromStr;
 
 pub fn read_player(target: &PlayerInfo) -> (Status, Option<Block>) {
     let (status, data) = runner::send_command("READ PLAYER", Args::from_str(target.name()), "");
-    let data = data.concat();
+    let data = data.join("\n");
     match status {
         Status::Ok => match Block::from_str(data.as_str()) {
             Ok(block) => (status, Some(block)),
