@@ -13,6 +13,7 @@ mod internal_types;
 pub mod types;
 
 pub mod comms {
+    pub mod end;
     pub mod init;
     pub mod observer;
     pub mod player;
