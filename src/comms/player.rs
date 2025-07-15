@@ -1,14 +1,15 @@
+use serde::{de::DeserializeOwned, Serialize};
 use super::runner;
-use crate::block::Block;
 use crate::internal_types::Args;
 use crate::types::{PlayerInfo, Status};
-use std::str::FromStr;
 
-pub fn read_player(target: &PlayerInfo) -> (Status, Option<Block>) {
+pub fn read_player<'a, T>(target: &PlayerInfo) -> (Status, Option<T>) 
+    where T : DeserializeOwned
+{
     let (status, data) = runner::send_command("READ PLAYER", Args::from_str(target.name()), "");
     let data = data.join("\n");
     match status {
-        Status::Ok => match Block::from_str(data.as_str()) {
+        Status::Ok => match serde_json::from_str::<T>(&data) {
             Ok(block) => (status, Some(block)),
             Err(_) => (Status::Error, None),
         },
@@ -18,20 +19,21 @@ pub fn read_player(target: &PlayerInfo) -> (Status, Option<Block>) {
 
 pub fn to_player<T>(target: &PlayerInfo, data: T) -> Status
 where
-    T: Into<Block>,
+    T: Serialize,
 {
-    let block: Block = data.into();
+    let json = serde_json::to_string(&data).expect("Failed to serialize data to JSON");
     let (status, _) = runner::send_command(
         "TO PLAYER",
         Args::from_str(target.name()),
-        &block.to_string(),
+        &json,
     );
     status
 }
 
-pub fn send_and_read_player<T>(target: &PlayerInfo, data: T) -> (Status, Option<Block>)
+pub fn send_and_read_player<T, R>(target: &PlayerInfo, data: T) -> (Status, Option<R>)
 where
-    T: Into<Block>,
+    T: Serialize, 
+    R: DeserializeOwned,
 {
     if to_player(target, data) != Status::Ok {
         (Status::Error, None)
